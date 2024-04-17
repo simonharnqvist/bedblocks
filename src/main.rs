@@ -1,58 +1,50 @@
-use bedblocks::Region;
-use std::{env, process};
+use bedblocks::{filter_min_dist, Block, Region};
 use bio::io::bed;
+use clap::Parser;
+use clap_stdin::MaybeStdin;
+use std;
+use std::io::{self, Write};
+use std::path::PathBuf;
 
-pub struct Config {
-    pub path: String,
-    pub blocklength: u64,
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path of input BED file
+    #[arg(short, long)]
+    input: MaybeStdin<PathBuf>,
+
+    /// Length of blocks to make
+    #[arg(short, long)]
+    blocklength: u64,
+
+    /// Minimum distance between blocks
+    #[arg(short, long, default_value_t = 0)]
+    min_dist: u64,
 }
-
-impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        assert!(args.len() == 3, "Expected 2 arguments");
-
-        let path = args[1].clone();
-        let blocklength: u64 = args[2].clone().parse().unwrap();
-
-        Ok(Config{ path, blocklength})
-    }
-}
-
-
 
 fn main() {
-
-    let args: Vec<String> = env::args().collect();
-    let config = Config::build(&args)
-        .unwrap_or_else(|err| {
-            println!("Problem parsing arguments: {err}");
-            process::exit(1);
-        });
-
-    let mut reader = bed::Reader::from_file(config.path).expect("Should have been able to read");
+    let args = Args::parse();
+    let input = args.input.to_str().expect("Could not parse file or stdin");
+    let mut reader = bed::Reader::from_file(input).expect("Unable to open BED file");
 
     let records = reader.records().map(|record| record.unwrap());
+    for record in records {
+        let region = Region::new(
+            record.chrom().to_string(),
+            record.start(),
+            record.end(),
+            args.blocklength,
+        );
 
-    let regions: Vec<Region> = records.map(|record| Region::new(&record.chrom(), &record.start(), &record.end(), &config.blocklength))
-        .into_iter()
-        .collect();
+        let blocks: Vec<Block> = Region::to_blocks(region);
+        let filtered_blocks = filter_min_dist(blocks, args.min_dist);
 
-    regions.into_iter().map(|region| println!("{:#?}", region.blockstarts));
+        let stdout = io::stdout();
+        let mut handle = stdout.lock();
+        for block in filtered_blocks {
+            writeln!(handle, "{}\t{}\t{}", &block.chrom, &block.start, &block.end)
+                .expect("Unable to write to stdout");
+        }
+        drop(handle);
+    }
 }
-
-
-//      for record in reader.records() {
-//          let rec = record.expect("Error reading record");
-//          println!("{}", rec.chrom());
-//          let region = Region{
-//              chrom: rec.chrom(),
-//              start: rec.start(),
-//              end: rec.end()};
-
-//          let starts = region.get_starts(config.blocklength);
-
-//          for start in starts {
-//             println!("{}\t{}", region.chrom, start)
-//         }
-//     }
-// }
