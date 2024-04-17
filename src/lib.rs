@@ -71,6 +71,13 @@ impl Block {
 }
 
 /// Get distance between two blocks
+/// # Examples
+/// ```
+/// let block1 = bedblocks::Block::new("chr1".to_string(), 100, 200);
+/// let block2 = bedblocks::Block::new("chr1".to_string(), 300, 400);
+/// let dist = bedblocks::block_distance((block1, block2));
+/// assert_eq!(100, dist);
+/// ```
 pub fn block_distance(blocks: (Block, Block)) -> u64 {
     let mut distance = 0;
     if blocks.0.chrom != blocks.1.chrom {
