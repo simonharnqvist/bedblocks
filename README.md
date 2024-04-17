@@ -9,9 +9,6 @@ A common(ish) problem in genomics is the need to split a genome into blocks, pre
 ### Installation
 In due course, bedblocks will be available through the appropriate channels. For now, the binary made on MacOS is available in this Git repo.
 
-```
-wget github.com/simonharnqvist/bedblocks/bedblocks
-```
 
 ### Usage
 
