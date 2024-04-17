@@ -4,10 +4,12 @@
 > :warning: This is experimental software in alpha testing.
 
 
-A common(ish) problem in genomics is the need to split a genome into blocks, preferably with blocks some distance apart. Bedblocks allows users to efficiently split a BED file into blocks of a given length a set distance apart.
+A common(ish) problem in genomics is the need to split a genome into blocks, preferably with blocks some distance apart. `bedblocks` allows users to efficiently split a BED file into blocks of a given length a set distance apart.
 
 ### Installation
-In due course, bedblocks will be available through the appropriate channels. For now, the binary made on MacOS is available in this Git repo.
+For Rust users, `bedblocks` is available via `cargo`: https://crates.io/crates/bedblocks.
+
+In due course, `bedblocks` will be available as a binary through the appropriate channels. For now, the binary made on MacOS is available in this Git repo.
 
 
 ### Usage
@@ -37,4 +39,4 @@ chr3    2204    2303
 ```
 
 ### Speed
-On an Apple M2 chip, bedblocks split a BED file of 17.4 million entries into blocks of length 100 with a minimum separation of 100 nt in about 7.5 seconds. 
+On an Apple M2 chip, `bedblocks` split a BED file of 17.4 million entries into blocks of length 100 with a minimum separation of 100 nt in about 7.5 seconds. 
